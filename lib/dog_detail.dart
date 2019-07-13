@@ -18,6 +18,7 @@ class DogDetailPage extends StatefulWidget {
 class _DogDetailPageState extends State<DogDetailPage> {
 
   final double dogAvatarSize = 150.0;
+  double _sliderValue = 10.0;
 
    @override
   Widget build(BuildContext context) {
@@ -27,7 +28,12 @@ class _DogDetailPageState extends State<DogDetailPage> {
         backgroundColor: Colors.black87,
         title: Text("Meet ${widget.dog.name}"),
       ),
-      body: dogProfile,
+      body: ListView(
+        children: <Widget>[
+          dogProfile,
+          addYourRating,
+        ],
+      ),
     );
   }
 
@@ -106,6 +112,78 @@ class _DogDetailPageState extends State<DogDetailPage> {
     );
   }
 
+  Widget get addYourRating {
+    return Column(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Flexible(
+                flex: 1,
+                child: Slider(
+                  min: 0,
+                  max: 15,
+                  onChanged: (newRating) {
+                    setState(() {
+                      _sliderValue = newRating; 
+                    });
+                  },
+                  value: _sliderValue,
+                ),
+              ),
+              Container(
+                width: 50,
+                alignment: Alignment.center,
+                child: Text('${_sliderValue.toInt()}',
+                 style: Theme.of(context).textTheme.display1,),
+              ),
+            ],
+          ),
+          color: Colors.white,
+        ),
+        submitRatingButton,
+      ],
+    );
+  }
+
+  Widget get submitRatingButton {
+    return RaisedButton(
+      onPressed: updateRating,
+      child: Text('submit'),
+      color: Colors.indigoAccent,
+    );
+  }
+
+  void updateRating(){
+    if (_sliderValue < 10) {
+      _ratingErrorDialog();
+    } else {
+      setState(() {
+        widget.dog.rating = _sliderValue.toInt();
+        Navigator.of(context).pop();
+      });
+    }
+  }
+
+  Future<Null> _ratingErrorDialog() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error!'),
+          content: Text('They are good dogs!'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Try Again'),
+              onPressed: () => Navigator.of(context).pop(),
+            )
+          ],
+        );
+      }
+    );
+  }
  
 
 }
